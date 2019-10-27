@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CustomSeekBar">
+        <attr name="setIndicator" format="enum">
+            <enum name="Single" value="0"/>
+            <enum name="Double" value="1"/>
+        </attr>
+
+        <attr name="showIndicator" format="boolean"/>
+        <attr name="showIndicatorTextRight" format="boolean" />
+        <attr name="showIndicatorTextLeft" format="boolean" />
+
+        <attr name="setIndicatorTextRight" format="string" />
+        <attr name="setIndicatorTextLeft" format="string" />
+
+        <attr name="setIndicatorRightRadius" format="integer" />
+        <attr name="setIndicatorLeftRadius" format="integer" />
+
+
+        <attr name="setLineSize" format="integer" />
+
+        <attr name="setMarginLeft" format="integer" />
+        <attr name="setMarginRight" format="integer" />
+        <attr name="setMarginTop" format="integer" />
+        <attr name="setMarginBottom" format="integer" />
+
+        <attr name="labelPosition" format="enum">
+            <enum name="Up" value="0"/>
+            <enum name="Down" value="1"/>
+            <enum name="Both" value="2"/>
+        </attr>
+    </declare-styleable>
+</resources>
