@@ -18,7 +18,12 @@
         <attr name="setIndicatorLeftRadius" format="integer" />
 
 
+        <attr name="setLowerRange" format="float" />
+        <attr name="setHighRange" format="float" />
+        <attr name="setDigitsAfterPoint" format="integer" />
+
         <attr name="setLineSize" format="integer" />
+
 
         <attr name="setMarginLeft" format="integer" />
         <attr name="setMarginRight" format="integer" />

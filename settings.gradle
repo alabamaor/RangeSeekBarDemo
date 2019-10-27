@@ -1,1 +1,3 @@
-include ':app', ':rangeseekbar'
+include ':app'
+include ':rangeseekbar'
+//project(':rangeseekbar').projectDir = new File(settingsDir, '../../RangeSeekBar/RangeSeekBar')
