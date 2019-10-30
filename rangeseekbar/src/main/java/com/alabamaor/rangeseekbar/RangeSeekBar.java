@@ -23,45 +23,50 @@ public class RangeSeekBar extends View {
 
     private int digitsAfterPoint;
 
-    float lowRange;
-    float highRange;
+    private float lowRange;
+    private float highRange;
 
-    Context context;
+    private Context context;
 
-    Canvas canvas;
-    int screenWidth;
-    int screenHeight;
-    Paint indicatorRightPaint;
-    Paint indicatorLeftPaint;
-    Paint linePaint;
-    Paint linePaintRight;
-    Paint linePaintLeft;
-    Paint paint;
+    private Canvas canvas;
+    private int screenWidth;
+    private int screenHeight;
 
+    private RectF defaultLine;
+    private RectF leftLine;
+    private RectF rightLine;
 
-    int marginLeft;
-    int marginRight;
-    int marginTop;
-    int marginBottom;
-
-
-    boolean isSingleIndicator;
+    private Paint indicatorRightPaint;
+    private Paint indicatorLeftPaint;
+    private Paint linePaint;
+    private Paint linePaintRight;
+    private Paint linePaintLeft;
+    private Paint paint;
 
 
-    String rightIndicatorText;
-    String leftIndicatorText;
+    private int marginLeft;
+    private int marginRight;
+    private int marginTop;
+    private int marginBottom;
 
-    int indicatorRightRadius;
-    int indicatorLeftRadius;
 
-    float indicatorRightPositionX;
-    float indicatorLeftPositionX;
+    private boolean isSingleIndicator;
 
-    int lineSize;
-    float linePositionStartX;
-    float linePositionStartY;
-    float linePositionEndX;
-    float linePositionEndY;
+
+    private String rightIndicatorText;
+    private String leftIndicatorText;
+
+    private int indicatorRightRadius;
+    private int indicatorLeftRadius;
+
+    private float indicatorRightPositionX;
+    private float indicatorLeftPositionX;
+
+    private int lineSize;
+    private float linePositionStartX;
+    private float linePositionStartY;
+    private float linePositionEndX;
+    private float linePositionEndY;
 
 
     private boolean pressLeftIndicator;
@@ -79,10 +84,10 @@ public class RangeSeekBar extends View {
                 0, 0);
 
         try {
-            isSingleIndicator = a.getBoolean(R.styleable.CustomSeekBar_setIndicator, true);
+            setSingleIndicator(a.getBoolean(R.styleable.CustomSeekBar_isSingleIndicator, false));
 
-            leftIndicatorText = a.getString(R.styleable.CustomSeekBar_setIndicatorTextLeft);
-            rightIndicatorText = a.getString(R.styleable.CustomSeekBar_setIndicatorTextRight);
+            setLeftIndicatorText(a.getString(R.styleable.CustomSeekBar_setIndicatorTextLeft));
+            setRightIndicatorText(a.getString(R.styleable.CustomSeekBar_setIndicatorTextRight));
 
             indicatorLeftRadius = a.getInt(R.styleable.CustomSeekBar_setIndicatorLeftRadius, DEFAULT_INDICATOR_SIZE);
             indicatorRightRadius = a.getInt(R.styleable.CustomSeekBar_setIndicatorRightRadius, DEFAULT_INDICATOR_SIZE);
@@ -115,8 +120,6 @@ public class RangeSeekBar extends View {
         pressLeftIndicator = false;
         pressRightIndicator = false;
 
-
-
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.RED);
 
@@ -133,6 +136,9 @@ public class RangeSeekBar extends View {
         linePaintLeft = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaintLeft.setColor(Color.GRAY);
 
+        defaultLine = new RectF();
+        rightLine = new RectF();
+        leftLine = new RectF();
 
     }
 
@@ -152,7 +158,8 @@ public class RangeSeekBar extends View {
         setMeasuredDimension(widthMeasureSpec, measureHeight);
 
         indicatorLeftPositionX = marginLeft + 100;
-        indicatorRightPositionX = screenWidth - marginRight - 100;
+
+        indicatorRightPositionX = isSingleIndicator ? linePositionEndX : screenWidth - marginRight - 100;
 
 
         linePositionStartX = marginLeft;
@@ -169,28 +176,31 @@ public class RangeSeekBar extends View {
 
         this.canvas = canvas;
 //        canvas.drawColor(context.getResources().getColor(R.color.colorAccent));
-//
-//        RectF rect = new RectF(10, canvas.getHeight()/3 + 10,
-//                canvas.getWidth()-10, canvas.getHeight()/3 - 10);
-//
-        RectF rect = new RectF(linePositionStartX, linePositionStartY,
+
+        defaultLine.set(linePositionStartX, linePositionStartY,
                 linePositionEndX, linePositionEndY);
 
-
-        RectF rectRight = new RectF(linePositionStartX, linePositionStartY,
+        rightLine.set(linePositionStartX, linePositionStartY,
                 indicatorRightPositionX, linePositionEndY);
 
-        RectF rectLeft = new RectF(linePositionStartX, linePositionStartY,
+        leftLine.set(linePositionStartX, linePositionStartY,
                 indicatorLeftPositionX, linePositionEndY);
 
-        canvas.drawRoundRect(rect, 30, 30, linePaint);
-        canvas.drawRoundRect(rectRight, 30, 30, linePaintRight);
-        canvas.drawRoundRect(rectLeft, 30, 30, linePaintLeft);
 
+        canvas.drawRoundRect(linePositionStartX, linePositionStartY,
+                linePositionEndX, linePositionEndY, 30, 30, linePaint);
 
-            canvas.drawCircle(indicatorLeftPositionX, rect.centerY(), indicatorLeftRadius, indicatorLeftPaint);
-            canvas.drawCircle(indicatorRightPositionX, rect.centerY(), indicatorRightRadius, indicatorRightPaint);
+        canvas.drawRoundRect(rightLine, 30, 30, linePaintRight);
 
+        if (!isSingleIndicator){
+            canvas.drawRoundRect(leftLine, 30, 30, linePaintLeft);
+        }
+
+        canvas.drawCircle(indicatorLeftPositionX, defaultLine.centerY(), indicatorLeftRadius, indicatorLeftPaint);
+
+        if (!isSingleIndicator) {
+            canvas.drawCircle(indicatorRightPositionX, defaultLine.centerY(), indicatorRightRadius, indicatorRightPaint);
+        }
 
 
         Paint textPaint = new Paint();
@@ -210,8 +220,10 @@ public class RangeSeekBar extends View {
 //        canvas.drawText(rightIndicatorText, (rect.centerX()-130) , rect.centerY() - 100, textPaint);
 //        canvas.drawText(leftIndicatorText, (rect.centerX() +30) , rect.centerY() - 100, textPaint);
 //
-        canvas.drawText(leftIndicatorText, (rect.centerX() -130) , rect.centerY() + 100, textPaint);
-        canvas.drawText(rightIndicatorText, (rect.centerX()+30) , rect.centerY() + 100, textPaint);
+        canvas.drawText(leftIndicatorText, indicatorLeftPositionX-indicatorLeftRadius/2, leftLine.centerY() + 100, textPaint);
+        if (!isSingleIndicator) {
+            canvas.drawText(rightIndicatorText, indicatorRightPositionX-indicatorRightRadius/2, defaultLine.centerY() + 100, textPaint);
+        }
 
     }
 //
@@ -232,12 +244,23 @@ public class RangeSeekBar extends View {
                     pressRightIndicator = true;
                     isRightFirst = true;
                 }
+                 else if (x >= linePositionStartX && x<=linePositionEndX &&
+                y>= linePositionStartY && y<=linePositionEndY){
+                     if (Math.abs(x-indicatorRightPositionX) < Math.abs(x-indicatorLeftPositionX)){
+                         moveIndicatorRight(x, indicatorRightRadius);
+                         pressRightIndicator = true;
+                    }
+                     else{
+                         moveIndicatorLeft(x, indicatorLeftRadius);
+                         pressLeftIndicator = true;
+                     }
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (pressLeftIndicator)
                 moveIndicatorLeft(x,  indicatorLeftRadius);
                 else if (pressRightIndicator)
-                moveIndicatorRight(x, indicatorLeftRadius);
+                moveIndicatorRight(x, indicatorRightRadius);
                 break;
             case MotionEvent.ACTION_UP:
                 if (pressLeftIndicator)
@@ -325,4 +348,285 @@ public class RangeSeekBar extends View {
         }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public int getDigitsAfterPoint() {
+        return digitsAfterPoint;
+    }
+
+    public void setDigitsAfterPoint(int digitsAfterPoint) {
+        this.digitsAfterPoint = digitsAfterPoint;
+    }
+
+    public float getLowRange() {
+        return lowRange;
+    }
+
+    public void setLowRange(float lowRange) {
+        this.lowRange = lowRange;
+    }
+
+    public float getHighRange() {
+        return highRange;
+    }
+
+    public void setHighRange(float highRange) {
+        this.highRange = highRange;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public void setScreenWidth(int screenWidth) {
+        this.screenWidth = screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public void setScreenHeight(int screenHeight) {
+        this.screenHeight = screenHeight;
+    }
+
+    public Paint getIndicatorRightPaint() {
+        return indicatorRightPaint;
+    }
+
+    public void setIndicatorRightPaint(Paint indicatorRightPaint) {
+        this.indicatorRightPaint = indicatorRightPaint;
+    }
+
+    public Paint getIndicatorLeftPaint() {
+        return indicatorLeftPaint;
+    }
+
+    public void setIndicatorLeftPaint(Paint indicatorLeftPaint) {
+        this.indicatorLeftPaint = indicatorLeftPaint;
+    }
+
+    public Paint getLinePaint() {
+        return linePaint;
+    }
+
+    public void setLinePaint(Paint linePaint) {
+        this.linePaint = linePaint;
+    }
+
+    public Paint getLinePaintRight() {
+        return linePaintRight;
+    }
+
+    public void setLinePaintRight(Paint linePaintRight) {
+        this.linePaintRight = linePaintRight;
+    }
+
+    public Paint getLinePaintLeft() {
+        return linePaintLeft;
+    }
+
+    public void setLinePaintLeft(Paint linePaintLeft) {
+        this.linePaintLeft = linePaintLeft;
+    }
+
+    public Paint getPaint() {
+        return paint;
+    }
+
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+    }
+
+    public int getMarginLeft() {
+        return marginLeft;
+    }
+
+    public void setMarginLeft(int marginLeft) {
+        this.marginLeft = marginLeft;
+    }
+
+    public int getMarginRight() {
+        return marginRight;
+    }
+
+    public void setMarginRight(int marginRight) {
+        this.marginRight = marginRight;
+    }
+
+    public int getMarginTop() {
+        return marginTop;
+    }
+
+    public void setMarginTop(int marginTop) {
+        this.marginTop = marginTop;
+    }
+
+    public int getMarginBottom() {
+        return marginBottom;
+    }
+
+    public void setMarginBottom(int marginBottom) {
+        this.marginBottom = marginBottom;
+    }
+
+    public boolean isSingleIndicator() {
+        return isSingleIndicator;
+    }
+
+    public void setSingleIndicator(boolean singleIndicator) {
+        isSingleIndicator = singleIndicator;
+    }
+
+    public String getRightIndicatorText() {
+        return rightIndicatorText;
+    }
+
+    public void setRightIndicatorText(String rightIndicatorText) {
+        if (rightIndicatorText == null)
+            this.rightIndicatorText = " ";
+        else
+            this.rightIndicatorText = rightIndicatorText;
+    }
+
+    public String getLeftIndicatorText() {
+        return leftIndicatorText;
+    }
+
+    public void setLeftIndicatorText(String leftIndicatorText) {
+        if (leftIndicatorText == null)
+            this.leftIndicatorText = " ";
+        else
+            this.leftIndicatorText = leftIndicatorText;
+    }
+
+    public int getIndicatorRightRadius() {
+        return indicatorRightRadius;
+    }
+
+    public void setIndicatorRightRadius(int indicatorRightRadius) {
+        this.indicatorRightRadius = indicatorRightRadius;
+    }
+
+    public int getIndicatorLeftRadius() {
+        return indicatorLeftRadius;
+    }
+
+    public void setIndicatorLeftRadius(int indicatorLeftRadius) {
+        this.indicatorLeftRadius = indicatorLeftRadius;
+    }
+
+    public float getIndicatorRightPositionX() {
+        return indicatorRightPositionX;
+    }
+
+    public void setIndicatorRightPositionX(float indicatorRightPositionX) {
+        this.indicatorRightPositionX = indicatorRightPositionX;
+    }
+
+    public float getIndicatorLeftPositionX() {
+        return indicatorLeftPositionX;
+    }
+
+    public void setIndicatorLeftPositionX(float indicatorLeftPositionX) {
+        this.indicatorLeftPositionX = indicatorLeftPositionX;
+    }
+
+    public int getLineSize() {
+        return lineSize;
+    }
+
+    public void setLineSize(int lineSize) {
+        this.lineSize = lineSize;
+    }
+
+    public float getLinePositionStartX() {
+        return linePositionStartX;
+    }
+
+    public void setLinePositionStartX(float linePositionStartX) {
+        this.linePositionStartX = linePositionStartX;
+    }
+
+    public float getLinePositionStartY() {
+        return linePositionStartY;
+    }
+
+    public void setLinePositionStartY(float linePositionStartY) {
+        this.linePositionStartY = linePositionStartY;
+    }
+
+    public float getLinePositionEndX() {
+        return linePositionEndX;
+    }
+
+    public void setLinePositionEndX(float linePositionEndX) {
+        this.linePositionEndX = linePositionEndX;
+    }
+
+    public float getLinePositionEndY() {
+        return linePositionEndY;
+    }
+
+    public void setLinePositionEndY(float linePositionEndY) {
+        this.linePositionEndY = linePositionEndY;
+    }
+
+    public boolean isPressLeftIndicator() {
+        return pressLeftIndicator;
+    }
+
+    public void setPressLeftIndicator(boolean pressLeftIndicator) {
+        this.pressLeftIndicator = pressLeftIndicator;
+    }
+
+    public boolean isPressRightIndicator() {
+        return pressRightIndicator;
+    }
+
+    public void setPressRightIndicator(boolean pressRightIndicator) {
+        this.pressRightIndicator = pressRightIndicator;
+    }
+
+    public boolean isRightFirst() {
+        return isRightFirst;
+    }
+
+    public void setRightFirst(boolean rightFirst) {
+        isRightFirst = rightFirst;
+    }
+
+    public float getCalcedRangeMovement() {
+        return calcedRangeMovement;
+    }
+
+    public void setCalcedRangeMovement(float calcedRangeMovement) {
+        this.calcedRangeMovement = calcedRangeMovement;
+    }
+
+
 }

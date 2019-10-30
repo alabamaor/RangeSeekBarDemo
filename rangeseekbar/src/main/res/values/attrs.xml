@@ -2,14 +2,16 @@
 <resources>
 
     <declare-styleable name="CustomSeekBar">
-        <attr name="setIndicator" format="enum">
-            <enum name="Single" value="0"/>
-            <enum name="Double" value="1"/>
-        </attr>
+        <!--<attr name="setIndicator" format="enum">-->
+            <!--<enum name="Single" value="0"/>-->
+            <!--<enum name="Double" value="1"/>-->
+        <!--</attr>-->
 
         <attr name="showIndicator" format="boolean"/>
         <attr name="showIndicatorTextRight" format="boolean" />
         <attr name="showIndicatorTextLeft" format="boolean" />
+
+        <attr name="isSingleIndicator" format="boolean" />
 
         <attr name="setIndicatorTextRight" format="string" />
         <attr name="setIndicatorTextLeft" format="string" />
