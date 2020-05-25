@@ -79,8 +79,7 @@ public class RangeSeekBar extends View {
         super(context, attrs);
         this.context = context;
         TypedArray a = context.getTheme().obtainStyledAttributes(
-                attrs,
-                R.styleable.CustomSeekBar,
+                attrs, R.styleable.CustomSeekBar,
                 0, 0);
 
         try {
